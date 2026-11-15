@@ -13,11 +13,17 @@ run = "go build -o hi ./cmd/hi"
 
 [tasks.fmt]
 description = "format"
-run = "golangci-lint fmt"
+run = [
+  "golangci-lint fmt",
+  "shfmt -i 2 -w scripts/",
+]
 
 [tasks.lint]
 description = "lint"
-run = "golangci-lint run"
+run = [
+  "golangci-lint run",
+  "shellcheck scripts/*.sh",
+]
 
 [tasks.e2e]
 description = "e2e"
