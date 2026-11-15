@@ -1,0 +1,25 @@
+version: 2
+
+builds:
+  - main: ./cmd/hi
+    binary: hi
+    goos:
+      - darwin
+    goarch:
+      - arm64
+
+archives:
+  - formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+release:
+  github:
+    owner: celestial-observability
+    name: otelnative-mycli
