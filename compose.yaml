@@ -1,0 +1,27 @@
+---
+
+#
+# json-file ドライバーはデフォルトで上限なくログを蓄積し続ける
+# ディスクの枯渇を防ぐため、30 MB でローテーションし、最大 5 世代まで保持する
+#
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "30m"
+    max-file: "5"
+
+services:
+  jaeger:
+    logging:
+      <<: *default-logging
+    image: jaegertracing/jaeger:2.19.0@sha256:ede4864215be4cd85bd8c3129a2fea6c5713c5653c7282c429dba123014bc68b
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:16686/"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 10s
+

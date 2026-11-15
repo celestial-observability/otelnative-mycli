@@ -15,14 +15,14 @@ run = "go build -o hi ./cmd/hi"
 description = "format"
 run = [
   "golangci-lint fmt",
-  "shfmt -i 2 -w scripts/",
+  "shfmt -i 2 -w scripts/ mise-tasks/",
 ]
 
 [tasks.lint]
 description = "lint"
 run = [
   "golangci-lint run",
-  "shellcheck scripts/*.sh",
+  "shellcheck scripts/*.sh mise-tasks/jaeger/*",
 ]
 
 [tasks.e2e]
