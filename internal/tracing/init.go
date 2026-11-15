@@ -2,11 +2,13 @@ package tracing
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -14,14 +16,15 @@ import (
 )
 
 // Init はトレース出力を初期化し、終了処理用の関数を返す。
-// エクスポーターは環境変数 HI_TRACES_EXPORTER で選ぶ。この節では none（デフォルト）と stdout に対応する。
-func Init(_ context.Context, serviceName string) (func(context.Context) error, error) {
+// エクスポーターは環境変数 HI_TRACES_EXPORTER（none | stdout | otlp）で選ぶ。デフォルトは none。
+// otlp の宛先は環境変数 HI_OTLP_ENDPOINT で指定する（必須）。
+func Init(ctx context.Context, serviceName string) (func(context.Context) error, error) {
 	exporterName := os.Getenv("HI_TRACES_EXPORTER")
 	if exporterName == "" || exporterName == "none" {
 		return func(context.Context) error { return nil }, nil
 	}
 
-	exp, err := newExporter(exporterName)
+	exp, err := newExporter(ctx, exporterName)
 	if err != nil {
 		return nil, err
 	}
@@ -52,11 +55,18 @@ func newResource(serviceName string) *resource.Resource {
 
 // newExporter は名前に応じたエクスポーターを生成する。
 // stdout は Span の JSON をコマンドの出力に混ぜないよう、標準エラー出力へ書く。
-func newExporter(name string) (sdktrace.SpanExporter, error) {
+// otlp は HI_OTLP_ENDPOINT で指定した宛先へ OTLP/HTTP で送信する。
+func newExporter(ctx context.Context, name string) (sdktrace.SpanExporter, error) {
 	switch name {
 	case "stdout":
 		return stdouttrace.New(stdouttrace.WithWriter(os.Stderr))
+	case "otlp":
+		endpoint := os.Getenv("HI_OTLP_ENDPOINT")
+		if endpoint == "" {
+			return nil, errors.New("HI_OTLP_ENDPOINT is required when HI_TRACES_EXPORTER=otlp")
+		}
+		return otlptracehttp.New(ctx, otlptracehttp.WithEndpointURL(endpoint))
 	default:
-		return nil, fmt.Errorf("unknown HI_TRACES_EXPORTER: %q (none|stdout)", name)
+		return nil, fmt.Errorf("unknown HI_TRACES_EXPORTER: %q (none|stdout|otlp)", name)
 	}
 }
