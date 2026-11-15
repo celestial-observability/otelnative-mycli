@@ -18,3 +18,7 @@ run = "golangci-lint fmt"
 [tasks.lint]
 description = "lint"
 run = "golangci-lint run"
+
+[tasks.e2e]
+description = "e2e"
+run = "./scripts/e2e-test.sh"
