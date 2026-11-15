@@ -10,3 +10,11 @@ locked = true
 [tasks.build]
 description = "バイナリビルド"
 run = "go build -o hi ./cmd/hi"
+
+[tasks.fmt]
+description = "format"
+run = "golangci-lint fmt"
+
+[tasks.lint]
+description = "lint"
+run = "golangci-lint run"
