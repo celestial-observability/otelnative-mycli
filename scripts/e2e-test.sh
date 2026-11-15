@@ -132,6 +132,17 @@ expect_stdout_contains 'help' '--help'
 expect_stderr_empty '--help'
 
 #
+# ja
+#
+echo ''
+echo '=== ja ==='
+RUN_ARGS=(ja)
+run_cmd
+expect_exit_code 0 'ja'
+expect_stdout_contains 'こんにちは、世界!' "'こんにちは、世界!' is in stdout"
+expect_stderr_empty 'ja'
+
+#
 # サマリー
 #
 echo ''
