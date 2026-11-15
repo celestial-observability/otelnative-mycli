@@ -121,6 +121,17 @@ expect_stdout_contains 'Hello, World!' "'Hello, World!' is in stdout"
 expect_stderr_empty 'no args'
 
 #
+# --help
+#
+echo ''
+echo '=== --help ==='
+RUN_ARGS=(--help)
+run_cmd
+expect_exit_code 0 '--help'
+expect_stdout_contains 'help' '--help'
+expect_stderr_empty '--help'
+
+#
 # サマリー
 #
 echo ''
